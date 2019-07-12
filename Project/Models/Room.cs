@@ -11,6 +11,8 @@ namespace CastleGrimtol.Project.Models
     public List<Item> Items { get; set; }
     public Dictionary<string, IRoom> Exits { get; set; }
 
+    public bool unlockedStatus { get; set; }
+
 
 
     public Room Next { get; private set; }
@@ -44,12 +46,14 @@ namespace CastleGrimtol.Project.Models
       return this;
     }
 
-    public Room(string name, string description)
+
+    public Room(string name, string description, bool unlockedStatus)
     {
       Name = name;
       Description = description;
       Items = new List<Item>();
       Exits = new Dictionary<string, IRoom>();
+      unlockedStatus = true;
     }
 
 
