@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using CastleGrimtol.Project.Interfaces;
 using CastleGrimtol.Project.Models;
 
@@ -14,25 +15,23 @@ namespace CastleGrimtol.Project
 
     private bool running = true;
 
-    private bool attacking = true;
+    private bool attacking;
 
-
-
-    public void GetUserInput()
-    {
-      throw new System.NotImplementedException();
-    }
 
     public void Go(string direction)
     {
-      if (CurrentRoom.unlockedStatus == false)
+      if (CurrentRoom.Name == "RoomB")
       {
-        Console.WriteLine("You try to proceed with no luck");
+        Console.WriteLine("As you walk through the door, you're met with humungous Demon.  What do you do?");
+      }
+      if (CurrentRoom.UnlockedStatus == false)
+      {
+        Console.WriteLine("You push on the door.  Locked.");
       }
       else
       {
         CurrentRoom = (Room)CurrentRoom.Go(direction);
-        Console.Clear();
+        // Console.Clear();
         Console.WriteLine(CurrentRoom.Description);
       }
     }
@@ -76,7 +75,7 @@ namespace CastleGrimtol.Project
 
     public void Look()
     {
-      Console.WriteLine($"{CurrentRoom.Description}");
+      Console.WriteLine(CurrentRoom.Description);
     }
 
     public void Quit()
@@ -109,8 +108,8 @@ namespace CastleGrimtol.Project
 
 
       Item jailKey = new Item("key", "Jail Key");
-      Item lockstone = new Item("Pharros Lockstone", "Stone activating a creation of Pharros the Vagabond.");
-      Item KnightSet = new Item("Knight Gear", "A sturdy set of armor, a longsword, and a shield baring the crest of Anor Londo.");
+      Item lockstone = new Item("pharros", "Stone activating a creation of Pharros the Vagabond.");
+      Item KnightSet = new Item("gear", "A sturdy set of armor, a longsword, and a shield baring the crest of Anor Londo.");
       RoomA.Items.Add(jailKey);
       RoomB.Items.Add(lockstone);
       RoomD.Items.Add(KnightSet);
@@ -120,12 +119,14 @@ namespace CastleGrimtol.Project
 
       CurrentRoom = RoomA;
       CurrentPlayer = new Player("Chosen Undead", 100, rnd.Next(10, 20));
-      Enemy Hollow1 = new Enemy("victim", "Another soul that's gone hollow, like yourself.  They're terribly skinny, and remain propped up against the wall; indifferent to the world around them.", 15, rnd.Next(1, 3), true);
-      Enemy Hollow2 = new Enemy("Hollow2", "Another hollow.  You can hear him sobbing in the back of his cell.  The door is locked.", 15, 0, true);
-      Enemy Hollow3 = new Enemy("Hollow3", "You look and see a figure equipped from head to toe in Balder gear; Balder being the motherland of the Balder Knights who were fierce duelists.  He lies motionless, but his eyes barely glow red with life.  He seems to be clutching a stone block; smooth and frayed at the top, and covered in moss.  A key or treasure perhaps?", 40, rnd.Next(1, 10), true);
+      Enemy Hollow1 = new Enemy("hollow1", "Another soul that's gone hollow, like yourself.  They're terribly skinny, and remain propped up against the wall; indifferent to the world around them.", 15, rnd.Next(1, 3));
+      Enemy Hollow2 = new Enemy("hollow2", "Another hollow.  You can hear him sobbing in the back of his cell.  The door is locked.", 15, 0);
+      Enemy Hollow3 = new Enemy("hollow3", "You look and see a figure equipped from head to toe in Balder gear; Balder being the motherland of the Balder Knights who were fierce duelists.  He lies motionless, but his eyes barely glow red with life.  He seems to be clutching a stone block; smooth and frayed at the top, and covered in moss.  A key or treasure perhaps?", 40, rnd.Next(1, 10));
+      Enemy AsylumDemon = new Enemy("demon", "The large demon found in the Northern Undead Asylum assigned to keep Undead under lock and key.", 100, rnd.Next(20, 30));
       RoomB.Enemies.Add(Hollow1);
       RoomB.Enemies.Add(Hollow2);
       RoomB.Enemies.Add(Hollow3);
+      RoomC.Enemies.Add(AsylumDemon);
 
       Console.WriteLine(@" 
  _______  _______  ______   _______    _______  _______           _        _______ 
@@ -212,6 +213,13 @@ You look back up at the hole in the ceiling of your cell, and see an Elite Knigh
 
     public void TakeItem(string itemName)
     {
+      if (CurrentRoom.Name == "RoomD" && CurrentRoom.UnlockedStatus == false)
+      {
+        Console.WriteLine($@"{itemName} does not exist, or is already in inventory
+        ");
+      }
+
+
       Item foundItem = CurrentRoom.Items.Find(i => i.Name == itemName);
       if (foundItem != null)
       {
@@ -225,59 +233,126 @@ You look back up at the hole in the ceiling of your cell, and see an Elite Knigh
         Console.WriteLine($@"{itemName} does not exist, or is already in inventory
         ");
       }
+      if (itemName == "gear")
+      {
+        CurrentPlayer.AtkPower += 30;
+        Console.WriteLine("You reach out, and grab at the Hollow and begin looting.  You stand tall, covered from head to toe in armor; also equipping their Long Sword and shield.  Now, about that Demon . . .");
+      }
     }
 
     public void attackState(string attackTarget)
     {
+      Enemy enemy = CurrentRoom.Enemies.Find(e =>
+      { Console.WriteLine(e.Name); return e.Name == attackTarget; });
 
-
-      CurrentEnemy =
-
-      if (CurrentEnemy != null)
+      if (enemy != null && enemy.AliveStatus == true)
       {
-        this.attacking = true;
+        attacking = true;
         while (attacking)
         {
-          CurrentPlayer.atkPower -= CurrentEnemy.HP;
-          CurrentEnemy.atkPower -= CurrentPlayer.HP;
+          Console.Clear();
+          Console.WriteLine("Attacking . . .");
+          enemy.HP -= CurrentPlayer.AtkPower;
+          CurrentPlayer.HP -= enemy.AtkPower;
+          Thread.Sleep(1000);
+          Console.WriteLine($@"{CurrentPlayer.PlayerName} strikes {enemy.Name} for {CurrentPlayer.AtkPower}! 
+{enemy.Name} strikes {CurrentPlayer.PlayerName} for {enemy.AtkPower}!
 
-          if (CurrentPlayer.HP >= 1 && CurrentEnemy.HP >= 1)
-          {
-            Console.WriteLine($@"{CurrentPlayer} strikes {CurrentEnemy} for {CurrentPlayer.atkPower}! 
- {CurrentEnemy} strikes {CurrentPlayer} for {CurrentEnemy.atkPower}!
-
- {CurrentPlayer}       -       {CurrentEnemy}
- {CurrentPlayer.HP}            {CurrentEnemy.HP}
+ {CurrentPlayer.PlayerName}       -       {enemy.Name}
+      {CurrentPlayer.HP}          -          {enemy.HP}
 
                                                                                                               ");
+          Thread.Sleep(3000);
+
+          if (CurrentPlayer.HP <= 0 && enemy.HP > 1)
+          {
+            Console.Clear();
+            Console.WriteLine("YOU DIED");
+            Console.WriteLine("Restart?  Y/N");
+            string resetChoice = Console.ReadLine().ToLower();
+            if (resetChoice == "y")
+            {
+              Reset();
+              break;
+            }
+            else
+            {
+              Quit();
+              break;
+            }
+
           }
-          else if (CurrentPlayer.HP > 1 && CurrentEnemy.HP <= 0) ;
+          else if (CurrentPlayer.HP > 1 && enemy.HP <= 0)
           {
             attacking = false;
-            Console.WriteLine("YOU DEFEATED.");
+            enemy.AliveStatus = false;
+            Console.WriteLine(@"YOU DEFEATED
+                                                                                              ");
+            Thread.Sleep(1000);
+            if (enemy.Name == "demon" && enemy.AliveStatus == false)
+            {
+              Console.Clear();
+              Console.WriteLine("You slay the Asylum Demon, and find a key on him that leads through the double doors behind him.  You leave this place, and venture out into the world in search of your life purpose, or risk going completely Hollow forever.  YOU WIN?");
+              Console.WriteLine("Restart?  Y/N");
+              string resetChoice = Console.ReadLine().ToLower();
+              if (resetChoice == "y")
+              {
+                Reset();
+                break;
+              }
+              else
+              {
+                Quit();
+                break;
+              }
+            }
+            Console.WriteLine($"{CurrentRoom.Description}");
+            break;
           }
         }
       }
-      else
-      {
-        Console.WriteLine("Error");
-      }
-
     }
 
     public void UseItem(string itemName)
     {
-      CurrentRoom.unlockedStatus = true;
-      Console.WriteLine($"{CurrentPlayer.PlayerName} uses {itemName}");
+      Item discardItem = CurrentPlayer.Inventory.Find(i => i.Name == itemName);
+
+      if (CurrentRoom.Name == "RoomA" && itemName == "key")
+      {
+        CurrentRoom.UnlockedStatus = true;
+        Console.WriteLine($"{CurrentPlayer.PlayerName} uses {itemName}");
+        Console.WriteLine($"No use for {itemName} anymore.  Discard?  Y/N");
+        string itemDecision = Console.ReadLine().ToLower();
+
+        if (itemDecision == "y")
+        {
+          CurrentPlayer.Inventory.Remove(discardItem);
+          Console.WriteLine("Discarded!");
+        }
+
+      }
+      if (CurrentRoom.Name == "RoomD" && itemName == "pharros")
+      {
+        CurrentRoom.UnlockedStatus = true;
+        Console.WriteLine($"{CurrentPlayer.PlayerName} uses {itemName}");
+        Console.WriteLine(@"You insert the block into the mouth.  It slides in suprisingly easy, and the whole room lights up with a brilliant blue aura.  The contraption lifts up, and reveals a long since passed Hollow; equipped head to toe in armor and weapons.
+                                                                                    ");
+
+        Console.WriteLine($"No use for {itemName} anymore.  Discard?  Y/N");
+        string itemDecision = Console.ReadLine().ToLower();
+
+        if (itemDecision == "y")
+        {
+          CurrentPlayer.Inventory.Remove(discardItem);
+          Console.WriteLine("Discarded!");
+        }
+
+      }
     }
 
-    //Scope of the rest of this project includes: 
-    //Fleshing out the rest of the attack functions, and converting type string to type enemy
-    //Populate key enemies with items in their inventory
-    //Once dead, flip alivestatus bool, and change description.  Easiest way would probably to be to add a second descrption that's only called if alivestatus = false;
-    //Move into boss room.  If player does not possess their gear (from pharros lockstone room), then player is instantly killed when trying to commence battle
-    //Similar item check with property unlockedStatus once player is in room past boss
-    //Possibly create another bool.  If player possess gear, and wins, game over you win.  Might just start with an item check that will win the game if you have your gear, or lose the game if you don't.
-
+    public void GetUserInput()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

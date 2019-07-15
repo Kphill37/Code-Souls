@@ -9,13 +9,13 @@ namespace CastleGrimtol.Project.Models
     public List<Item> Inventory { get; set; }
 
     public int HP { get; set; }
-    public int atkPower { get; set; }
+    public int AtkPower { get; set; }
 
     public Player(string playerName, int hp, int atkpower)
     {
       PlayerName = playerName;
       HP = hp;
-      atkPower = atkpower;
+      AtkPower = atkpower;
       Inventory = new List<Item>();
     }
   }

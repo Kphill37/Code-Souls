@@ -10,20 +10,20 @@ namespace CastleGrimtol.Project.Models
     public string Name { get; set; }
     public string Description { get; set; }
     public int HP { get; set; }
-    public int atkPower { get; set; }
+    public int AtkPower { get; set; }
     public List<Item> Inventory { get; set; }
 
-    public bool aliveStatus { get; set; }
+    public bool AliveStatus { get; set; }
 
 
 
-    public Enemy(string name, string description, int hp, int atkpower, bool aliveStatus)
+    public Enemy(string name, string description, int hp, int atkpower)
     {
-      Name = Name;
+      Name = name;
       Description = description;
       HP = hp;
-      atkPower = atkpower;
-      aliveStatus = true;
+      AtkPower = atkpower;
+      AliveStatus = true;
       Inventory = new List<Item>();
     }
   }
