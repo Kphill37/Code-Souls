@@ -10,7 +10,11 @@ namespace CastleGrimtol.Project
     public Room CurrentRoom { get; set; }
     public Player CurrentPlayer { get; set; }
 
+    public Enemy CurrentEnemy { get; set; }
+
     private bool running = true;
+
+    private bool attacking = true;
 
 
 
@@ -58,7 +62,8 @@ namespace CastleGrimtol.Project
       {
         foreach (var item in CurrentPlayer.Inventory)
         {
-          Console.WriteLine("{0}, ", item.Name);
+          Console.WriteLine(@"{0} 
+          ", item.Name);
           break;
         }
       }
@@ -110,8 +115,17 @@ namespace CastleGrimtol.Project
       RoomB.Items.Add(lockstone);
       RoomD.Items.Add(KnightSet);
 
+      Random rnd = new Random();
+
+
       CurrentRoom = RoomA;
-      CurrentPlayer = new Player("Chosen Undead");
+      CurrentPlayer = new Player("Chosen Undead", 100, rnd.Next(10, 20));
+      Enemy Hollow1 = new Enemy("victim", "Another soul that's gone hollow, like yourself.  They're terribly skinny, and remain propped up against the wall; indifferent to the world around them.", 15, rnd.Next(1, 3), true);
+      Enemy Hollow2 = new Enemy("Hollow2", "Another hollow.  You can hear him sobbing in the back of his cell.  The door is locked.", 15, 0, true);
+      Enemy Hollow3 = new Enemy("Hollow3", "You look and see a figure equipped from head to toe in Balder gear; Balder being the motherland of the Balder Knights who were fierce duelists.  He lies motionless, but his eyes barely glow red with life.  He seems to be clutching a stone block; smooth and frayed at the top, and covered in moss.  A key or treasure perhaps?", 40, rnd.Next(1, 10), true);
+      RoomB.Enemies.Add(Hollow1);
+      RoomB.Enemies.Add(Hollow2);
+      RoomB.Enemies.Add(Hollow3);
 
       Console.WriteLine(@" 
  _______  _______  ______   _______    _______  _______           _        _______ 
@@ -169,6 +183,9 @@ You look back up at the hole in the ceiling of your cell, and see an Elite Knigh
           case "use":
             UseItem(option);
             break;
+          case "attack":
+            attackState(option);
+            break;
           case "help":
             Help();
             break;
@@ -210,15 +227,57 @@ You look back up at the hole in the ceiling of your cell, and see an Elite Knigh
       }
     }
 
+    public void attackState(string attackTarget)
+    {
+
+
+      CurrentEnemy =
+
+      if (CurrentEnemy != null)
+      {
+        this.attacking = true;
+        while (attacking)
+        {
+          CurrentPlayer.atkPower -= CurrentEnemy.HP;
+          CurrentEnemy.atkPower -= CurrentPlayer.HP;
+
+          if (CurrentPlayer.HP >= 1 && CurrentEnemy.HP >= 1)
+          {
+            Console.WriteLine($@"{CurrentPlayer} strikes {CurrentEnemy} for {CurrentPlayer.atkPower}! 
+ {CurrentEnemy} strikes {CurrentPlayer} for {CurrentEnemy.atkPower}!
+
+ {CurrentPlayer}       -       {CurrentEnemy}
+ {CurrentPlayer.HP}            {CurrentEnemy.HP}
+
+                                                                                                              ");
+          }
+          else if (CurrentPlayer.HP > 1 && CurrentEnemy.HP <= 0) ;
+          {
+            attacking = false;
+            Console.WriteLine("YOU DEFEATED.");
+          }
+        }
+      }
+      else
+      {
+        Console.WriteLine("Error");
+      }
+
+    }
+
     public void UseItem(string itemName)
     {
       CurrentRoom.unlockedStatus = true;
       Console.WriteLine($"{CurrentPlayer.PlayerName} uses {itemName}");
     }
 
-    public GameService()
-    {
+    //Scope of the rest of this project includes: 
+    //Fleshing out the rest of the attack functions, and converting type string to type enemy
+    //Populate key enemies with items in their inventory
+    //Once dead, flip alivestatus bool, and change description.  Easiest way would probably to be to add a second descrption that's only called if alivestatus = false;
+    //Move into boss room.  If player does not possess their gear (from pharros lockstone room), then player is instantly killed when trying to commence battle
+    //Similar item check with property unlockedStatus once player is in room past boss
+    //Possibly create another bool.  If player possess gear, and wins, game over you win.  Might just start with an item check that will win the game if you have your gear, or lose the game if you don't.
 
-    }
   }
 }
