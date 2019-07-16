@@ -44,7 +44,7 @@ namespace CastleGrimtol.Project.Models
       {
         return Exits[dir];
       }
-      Console.WriteLine("Invalid Location");
+      Console.WriteLine("Can't go that way!");
       return this;
     }
 
